@@ -18,9 +18,10 @@ object NumbersToEnglishWords {
     val soFar = if (number % 100 < 20) {
       numNames(number % 100)
     } else {
-      numNames(number % 10) match {
-        case "" => tensNames(tens) + numNames(number % 10)
-        case _ => tensNames(tens) + "-" + numNames(number % 10)
+      if (numNames(number % 10).isEmpty) {
+        tensNames(tens) + numNames(number % 10)
+      } else {
+        tensNames(tens) + "-" + numNames(number % 10)
       }
     }
 
@@ -35,24 +36,22 @@ object NumbersToEnglishWords {
       numNames(hundreds) + " hundred and " + soFar
   }
 
-  private def convertBeforeDecimalPoint(I_Number: Int): String = I_Number match {
-    case 0 => "zero"
-    case _ => {
-      val resultWord = convert(I_Number, 0).trim
-      val commaCheck = resultWord takeRight (1)
-      commaCheck match {
-        case "," => (resultWord dropRight (1)).trim
-        case _ => resultWord.trim
-      }
-    }
-
+  private def convertBeforeDecimalPoint(number: Int): String = {
+    if (number == 0)
+      "zero"
+    else
+      convert(number, 0).trim
   }
 
-  private def convertAfterDecimalPoint(D_Number: Double): String = D_Number match {
-    case 0.25 => "twenty-five"
-    case 0.5 => "fifty"
-    case 0.75 => "seventy-five"
-    case _ => ""
+  private def convertAfterDecimalPoint(number: Double): String = {
+    if (number == 0.25)
+      "twenty-five"
+    else if (number == 0.5)
+      "fifty"
+    else if (number == 0.75)
+      "seventy-five"
+    else
+      ""
   }
 
   private def preConversion(theNum: BigDecimal): (Int, Double) = {
@@ -67,11 +66,23 @@ object NumbersToEnglishWords {
       ""
     } else {
       val part = theNum % 1000
-      val theWord = part match {
-        case 0 => ""
-        case _ => convertLessThanOneThousand(part) + " " + specialNames(index) + ", "
+      val theWord = if (part == 0) {
+        ""
+      } else {
+        convertLessThanOneThousand(part) + " " + specialNames(index)
       }
-      convert(theNum / 1000, index + 1) + theWord
+      val theRest = convert(theNum / 1000, index + 1)
+      if (theRest.isEmpty) {
+        if (theWord.isEmpty)
+          ""
+        else
+          theWord
+      } else {
+        if (theWord.isEmpty)
+          theRest
+        else
+          theRest + ", " + theWord
+      }
     }
   }
 
