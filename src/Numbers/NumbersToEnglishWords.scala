@@ -43,15 +43,11 @@ object NumbersToEnglishWords {
       convert(number, 0).trim
   }
 
-  private def convertAfterDecimalPoint(number: Double): String = {
-    if (number == 0.25)
-      "twenty-five"
-    else if (number == 0.5)
-      "fifty"
-    else if (number == 0.75)
-      "seventy-five"
-    else
-      ""
+  private def convertAfterDecimalPoint(number: Double): String = number match {
+    case 0.25 => "twenty-five"
+    case 0.5 => "fifty"
+    case 0.75 => "seventy-five"
+    case _ => ""
   }
 
   private def preConversion(theNum: BigDecimal): (Int, Double) = {
